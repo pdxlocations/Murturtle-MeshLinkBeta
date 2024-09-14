@@ -2,3 +2,4 @@ config.yml
 plugins/.DS_Store
 plugins/__pycache__/*.pyc
 __pycache__/*.pyc
+.DS_Store
