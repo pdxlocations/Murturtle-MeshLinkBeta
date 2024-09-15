@@ -21,6 +21,8 @@ import requests
 
 import cfg
 
+from plugins.gpt import handle_discord_message, handle_meshtastic_message
+
 
 with open("./config.yml",'r') as file:
     cfg.config = yaml.safe_load(file)
@@ -47,6 +49,7 @@ config_options = [
     "message_role",
     "use_discord",
     "send_mesh_commands_to_discord",
+    "open_ai_token"
 ]
 
 
@@ -84,7 +87,7 @@ def onConnection(interface, topic=pub.AUTO_TOPIC):
         inst = p()
         inst.onConnect()
     print("Node ready")
-    interface.sendText("MeshLink is now running - rev "+str(rev)+"\n\n use "+cfg.config["prefix"]+"info for a list of commands",channelIndex = cfg.config["send_channel_index"])
+    # interface.sendText("MeshLink is now running - rev "+str(rev)+"\n\n use "+cfg.config["prefix"]+"info for a list of commands",channelIndex = cfg.config["send_channel_index"])
 
 
 
@@ -93,6 +96,7 @@ def onReceive(packet, interface):
         inst = p()
         inst.onReceive(packet,interface,client)
 
+    handle_meshtastic_message(packet, interface, client)
     
 def onDisconnect(interface):
     for p in Base.plugins:
@@ -141,6 +145,8 @@ if cfg.config["use_discord"]:
                 
             else:
                 return
+            
+        await handle_discord_message(message, interface)
 
 try:
     if cfg.config["use_discord"]:
